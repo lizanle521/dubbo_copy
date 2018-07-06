@@ -1,0 +1,3 @@
+impl1=com.lizanle.dubbo.common.copy.extension.ext1.impl.SimpleExtImpl1#hello word
+impl2=com.lizanle.dubbo.common.copy.extension.ext1.impl.SimpleExtImpl2  #comment
+   impl3=com.lizanle.dubbo.common.copy.extension.ext1.impl.SimpleExtImpl3  #hello word
