@@ -1,6 +1,7 @@
 package com.lizanle.dubbo.common.copy.extension;
 
 import com.lizanle.dubbo.common.copy.extension.ext1.SimpleExt;
+import com.lizanle.dubbo.common.copy.extension.ext2.Ext2;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -8,8 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class ExtensionLoaderTest {
     private final static Logger logger = LoggerFactory.getLogger(ExtensionLoaderTest.class);
@@ -55,5 +55,18 @@ public class ExtensionLoaderTest {
         // 逐行读取，将name ,class保存到cachedClassed中缓存起来，以免重复加载
         SimpleExt defaultExtension = ExtensionLoader.getExtensionLoader(SimpleExt.class).getDefaultExtension();
         assertThat(defaultExtension,instanceOf(SimpleExt.class));
+
+        String name = ExtensionLoader.getExtensionLoader(SimpleExt.class).getDefaultExtensionName();
+        assertEquals(name,"impl1");
+        assertThat(name,CoreMatchers.containsString("impl1"));
+    }
+
+    @Test
+    public void getNoDefaultExtension(){
+        Ext2 defaultExtension = ExtensionLoader.getExtensionLoader(Ext2.class).getDefaultExtension();
+        assertNull(defaultExtension);
+
+        String name = ExtensionLoader.getExtensionLoader(Ext2.class).getDefaultExtensionName();
+        assertNull(name);
     }
 }

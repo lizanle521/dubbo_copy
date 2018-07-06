@@ -254,6 +254,17 @@ public class ExtensionLoader<T> {
         }
         return getExtension(cachedDefaultName);
     }
+
+    /**
+     * 获取默认的扩展的名称
+     * 没有则返回空
+     * @return
+     */
+    public String getDefaultExtensionName(){
+        getExtensionClass();
+        return cachedDefaultName;
+    }
+
     private boolean isMatchGroup(String group,String[] groups){
         // 如果getActiveExtension 的group没有传参数，那么应该就是有active注解就合适
         if(group == null || group.length() == 0){
