@@ -1,13 +1,19 @@
 package com.lizanle.dubbo.common.copy.extension;
 
 import com.lizanle.dubbo.common.copy.extension.ext1.SimpleExt;
+import com.lizanle.dubbo.common.copy.extension.ext1.impl.SimpleExtImpl1;
+import com.lizanle.dubbo.common.copy.extension.ext1.impl.SimpleExtImpl2;
 import com.lizanle.dubbo.common.copy.extension.ext2.Ext2;
+import com.lizanle.dubbo.common.copy.extension.ext6_wrap.WrappedExt;
+import com.lizanle.dubbo.common.copy.extension.ext6_wrap.impl.Ext5Wrapper1;
+import com.lizanle.dubbo.common.copy.extension.ext6_wrap.impl.Ext5Wrapper2;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
 
@@ -68,5 +74,17 @@ public class ExtensionLoaderTest {
 
         String name = ExtensionLoader.getExtensionLoader(Ext2.class).getDefaultExtensionName();
         assertNull(name);
+    }
+
+    @Test
+    public void test_getExtension() throws Exception {
+        assertTrue(ExtensionLoader.getExtensionLoader(SimpleExt.class).getExtension("impl1") instanceof SimpleExtImpl1);
+        assertTrue(ExtensionLoader.getExtensionLoader(SimpleExt.class).getExtension("impl2") instanceof SimpleExtImpl2);
+    }
+
+    @Test
+    public void test_getExtension_withWrapper() throws Exception {
+        WrappedExt impl1 = ExtensionLoader.getExtensionLoader(WrappedExt.class).getExtension("impl1");
+        assertThat(impl1,anyOf(instanceOf(Ext5Wrapper1.class),instanceOf(Ext5Wrapper2.class)));
     }
 }
