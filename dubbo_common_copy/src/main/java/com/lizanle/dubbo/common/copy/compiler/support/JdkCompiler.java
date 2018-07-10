@@ -54,8 +54,12 @@ public class JdkCompiler extends AbstractCompiler {
         String packageName = i < 0 ? "" : name.substring(0,i);
         String className = i < 0 ? name : name.substring(i+1);
         JavaFileObjectImpl javaFileObject = new JavaFileObjectImpl(className, sourceCode);
-
-        return null;
+        javaFileManager.putFileForInput(StandardLocation.SOURCE_PATH,packageName,className+ClassUtils.JAVA_EXTENSIONS,javaFileObject);
+        Boolean result = compiler.getTask(null, javaFileManager, diagnosticCollector, options, null, Arrays.asList(new JavaFileObject[]{javaFileObject})).call();
+        if(result == null || !result.booleanValue()){
+            throw new IllegalStateException("Compilation faild class "+name+",diagnostic " +diagnosticCollector );
+        }
+        return classLoader.loadClass(name);
     }
 
     private static final class JavaFileManagerImpl extends ForwardingJavaFileManager<JavaFileManager> {

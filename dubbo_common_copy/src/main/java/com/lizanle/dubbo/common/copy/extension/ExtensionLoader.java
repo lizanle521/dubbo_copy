@@ -2,6 +2,7 @@ package com.lizanle.dubbo.common.copy.extension;
 
 import com.lizanle.dubbo.common.copy.Constants;
 import com.lizanle.dubbo.common.copy.URL;
+import com.lizanle.dubbo.common.copy.compiler.Compiler;
 import com.lizanle.dubbo.common.copy.utils.ConcurrentHashSet;
 import com.lizanle.dubbo.common.copy.utils.Holder;
 import com.lizanle.dubbo.common.copy.utils.StringUtils;
@@ -180,12 +181,12 @@ public class ExtensionLoader<T> {
             Set<Class<?>> cachedWrapperClasses = this.cachedWrapperClasses;
             if(cachedWrapperClasses != null){
                 for (Class<?> wrapperClass : cachedWrapperClasses) {
-                    instance = injectExtension((T)wrapperClass.getConstructor(type).newInstance());
+                    instance = injectExtension((T)wrapperClass.getConstructor(type).newInstance(instance));
                 }
             }
             return instance;
         }catch (Throwable e){
-            throw new IllegalStateException("extension instance (name:"+name+") (type"+type+") could not be instantiated:"+e.getMessage(),e);
+            throw new IllegalStateException("extension instance (name: "+name+" ) (type "+type+" ) could not be instantiated:"+e.getMessage(),e);
         }
     }
 
@@ -378,7 +379,8 @@ public class ExtensionLoader<T> {
                                                 clazz.getConstructor(type);
                                                 Set<Class<?>> cachedWrapperClasses = this.cachedWrapperClasses;
                                                 if(cachedWrapperClasses == null){
-                                                    cachedWrapperClasses = new ConcurrentHashSet<Class<?>>();
+                                                    this.cachedWrapperClasses = new ConcurrentHashSet<Class<?>>();
+                                                    cachedWrapperClasses = this.cachedWrapperClasses;
                                                 }
                                                 cachedWrapperClasses.add(clazz);
                                             }catch (NoSuchMethodException e){
@@ -416,20 +418,21 @@ public class ExtensionLoader<T> {
                                         }
                                     }
                                 }catch (Throwable e){
+                                    e.printStackTrace();
                                     IllegalStateException exception = new IllegalStateException("Faild to load extension class (interface:" + type + ",class line:" + line + ")in" + url + "cause," + e.getMessage(), e);
                                     exceptions.put(line,exception);
                                 }
                             }
                         }// end of while reader lines
                     }catch (Throwable e){
-
+                        e.printStackTrace();
                     }finally {
                         reader.close();
                     }
                 }
             }
         }catch (Throwable e){
-
+            e.printStackTrace();
         }
     }
 
@@ -446,12 +449,12 @@ public class ExtensionLoader<T> {
                             cachedAdaptiveInstance.set(instance);
                         }catch (Throwable e){
                             createAdaptiveInstanceError = e;
-                            throw  new IllegalStateException("faild to crreate adaptive instance:"+e.getMessage(),e);
+                            throw  new IllegalStateException("faild to create adaptive instance:"+e.getMessage(),e);
                         }
                     }
                 }
             }else {
-                throw  new IllegalStateException("faild to crreate adaptive instance:"+createAdaptiveInstanceError.getMessage(),createAdaptiveInstanceError);
+                throw  new IllegalStateException("faild to create adaptive instance:"+createAdaptiveInstanceError.getMessage(),createAdaptiveInstanceError);
             }
         }
         return (T)instance;
@@ -477,8 +480,8 @@ public class ExtensionLoader<T> {
         String code = createAdaptiveExtensionClassCode();
         // TODO
         ClassLoader classLoader = findClassLoader();
-
-        return null;
+        Compiler compiler = ExtensionLoader.getExtensionLoader(Compiler.class).getDefaultExtension();
+        return compiler.compile(code,classLoader);
     }
 
     private String createAdaptiveExtensionClassCode(){

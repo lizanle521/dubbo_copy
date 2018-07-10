@@ -1,0 +1,3 @@
+adaptive=com.lizanle.dubbo.common.copy.compiler.support.AdaptiveCompiler
+jdk=com.lizanle.dubbo.common.copy.compiler.support.JdkCompiler
+javassist=com.lizanle.dubbo.common.copy.compiler.support.JavassistCompiler

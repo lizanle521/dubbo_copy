@@ -1,0 +1,2 @@
+adaptive=com.lizanle.dubbo.common.copy.extension.factory.AdaptiveExtensionFactory
+spi=com.lizanle.dubbo.common.copy.extension.factory.SpiExtensionFactory
