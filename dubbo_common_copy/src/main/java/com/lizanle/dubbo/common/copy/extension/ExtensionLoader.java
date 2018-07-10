@@ -561,8 +561,13 @@ public class ExtensionLoader<T> {
         String code = createAdaptiveExtensionClassCode();
         // TODO
         ClassLoader classLoader = findClassLoader();
-        Compiler compiler = ExtensionLoader.getExtensionLoader(Compiler.class).getDefaultExtension();
-        return compiler.compile(code,classLoader);
+        Compiler compiler = ExtensionLoader.getExtensionLoader(Compiler.class).getAdaptvieExtension();
+        try {
+            return compiler.compile(code,classLoader);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     private String createAdaptiveExtensionClassCode(){
@@ -766,6 +771,9 @@ public class ExtensionLoader<T> {
         codeBuilder.append("\n}");
         return codeBuilder.toString();
     }
+
+
+
 
 
 }

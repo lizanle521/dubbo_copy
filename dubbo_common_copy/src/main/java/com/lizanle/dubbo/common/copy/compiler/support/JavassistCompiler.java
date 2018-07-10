@@ -91,8 +91,8 @@ public class JavassistCompiler extends AbstractCompiler {
              if(method.length() > 0){
                  if(method.startsWith(className)){
                      cls.addConstructor(CtNewConstructor.make("public " +method,cls));
-                 }else if(FIELD_PATTERN.matcher(method).find()){
-                     cls.addField(CtField.make("private method",cls));
+                 }else if(FIELD_PATTERN.matcher(method).matches()){
+                     cls.addField(CtField.make("private " + method,cls));
                  }else{
                      cls.addMethod(CtNewMethod.make("public "+method,cls));
                  }

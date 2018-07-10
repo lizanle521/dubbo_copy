@@ -1,5 +1,8 @@
 package com.lizanle.dubbo.common.copy.compiler.support;
 
+import com.lizanle.dubbo.common.copy.io.UnsafeStringWriter;
+
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -115,6 +118,22 @@ public class ClassUtils {
             return new URI(s);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e.getMessage(),e);
+        }
+    }
+
+    public static String toString(Throwable e) {
+        UnsafeStringWriter w = new UnsafeStringWriter();
+        PrintWriter printWriter = new PrintWriter(w);
+        printWriter.print(e.getClass().getName());
+        if(e.getMessage() != null){
+            printWriter.print(": "+e.getMessage());
+        }
+        printWriter.println();
+        try {
+            e.printStackTrace(printWriter);
+            return w.toString();
+        }finally {
+            printWriter.close();
         }
     }
 }

@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 public abstract class AbstractCompiler implements Compiler {
     private static final Pattern PACKAGE_PATTERN = Pattern.compile("package\\s+([$_a-zA-Z][$_a-zA-Z0-9\\.]*);");
 
-    private static final Pattern CLASS_PATTERN = Pattern.compile("class\\s+([$_a-zA-Z][$_a-zA-Z0-9])\\s+");
+    private static final Pattern CLASS_PATTERN = Pattern.compile("class\\s+([$_a-zA-Z][$_a-zA-Z0-9]*)\\s+");
 
     @Override
     public Class<?> compile(String code, ClassLoader classLoader) {
@@ -37,7 +37,8 @@ public abstract class AbstractCompiler implements Compiler {
             }catch (RuntimeException t){
                 throw t;
             }catch (Throwable t){
-                throw new IllegalStateException("Faild to compile class,cause:" + t.getMessage() + ",class:" + className+ ",code:" + code+"\n,stack:");
+                throw new IllegalStateException("Faild to compile class,cause:" + t.getMessage() +
+                        ",class:" + className+ ",code:" + code+"\n,stack:" + ClassUtils.toString(t));
             }
         }
     }
