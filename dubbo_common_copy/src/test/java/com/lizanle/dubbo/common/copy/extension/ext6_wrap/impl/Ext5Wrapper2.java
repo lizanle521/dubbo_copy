@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by Administrator on 2018/7/8.
  */
 public class Ext5Wrapper2 implements WrappedExt {
-    private static AtomicInteger echoCount = new AtomicInteger();
+    public static AtomicInteger echoCount = new AtomicInteger();
     WrappedExt wrappedExt;
 
     public Ext5Wrapper2(WrappedExt wrappedExt) {

@@ -21,4 +21,8 @@ public class StringUtils {
             printWriter.close();
         }
     }
+
+    public static boolean isBlank(String name) {
+        return name == null || name.length() == 0;
+    }
 }

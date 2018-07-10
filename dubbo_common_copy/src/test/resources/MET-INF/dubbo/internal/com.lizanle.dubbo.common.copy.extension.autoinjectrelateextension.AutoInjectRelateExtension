@@ -1,0 +1,3 @@
+adaptive=com.lizanle.dubbo.common.copy.extension.autoinjectrelateextension.impl.AutoInjectImpl1
+impl2=com.lizanle.dubbo.common.copy.extension.autoinjectrelateextension.impl.AutoInjectImpl2
+impl3=com.lizanle.dubbo.common.copy.extension.autoinjectrelateextension.impl.AutoInjectImpl3

@@ -44,32 +44,70 @@ public class ExtensionLoader<T> {
 
     private static final Pattern NAME_SEPARATOR = Pattern.compile("\\s*[,]+\\s*");
 
+    /**
+     * 缓存对应的扩展点加载器
+     */
     private static final ConcurrentHashMap<Class<?>,ExtensionLoader<?>> EXTENSION_LOADERS = new ConcurrentHashMap<>();
 
+    /**
+     * 缓存扩展点实例
+     */
     private final static ConcurrentHashMap<Class<?>,Object> EXTENSION_INSTANCE = new ConcurrentHashMap<>();
-    // ================
+    /**
+     * 保存加载器的扩展点类型
+     */
     private final Class<?> type;
 
     private final ExtensionFactory objectFactory;
 
+    /**
+     * 缓存对应的扩展类 以及 扩展类的名字（这个名字是在扩展文件里边指定的)
+     */
     private final ConcurrentHashMap<Class<?>,String> cachedNames = new ConcurrentHashMap<>();
 
+    /**
+     * 缓存对应的扩展类的map. 实际上他的用户只是作为一个同步器
+     */
     private final Holder<Map<String,Class<?>>> cachedClasses = new Holder();
 
+    /**
+     * 缓存对应的扩展点的名字 以及 他的 Activate注解
+     */
     private final Map<String,Activate> cachedActivates = new ConcurrentHashMap<>();
 
+    /**
+     * 缓存对应的扩展点的名字 以及 扩展点的实例持有者
+     */
     private final ConcurrentHashMap<String,Holder<Object>> cachedInstance = new ConcurrentHashMap<>();
 
+    /**
+     * 缓存扩展点的适配器类实例
+     */
     private final Holder<Object> cachedAdaptiveInstance = new Holder<>();
 
+    /**
+     * 缓存扩展类的适配器类，这个类一般都有 Adaptive注解
+     */
     private volatile Class<?> cachedAdaptiveClass = null;
 
+    /**
+     * 缓存默认的扩展点名称，一般是 SPI的默认值
+     */
     private String cachedDefaultName ;
 
+    /**
+     * 缓存创建适配器类的产生的错误
+     */
     private volatile Throwable createAdaptiveInstanceError;
 
+    /**
+     * 缓存包装器类集合，一般包装器类的构造器参数都是 扩展点接口
+     */
     private Set<Class<?>> cachedWrapperClasses;
 
+    /**
+     * 缓存对应的扩展点实例类名称全路径 以及 在加载这个扩展点的时候可能产生的异常
+     */
     private Map<String,IllegalStateException> exceptions = new ConcurrentHashMap<>();
 
     public ExtensionLoader(Class<?> type) {
@@ -275,6 +313,49 @@ public class ExtensionLoader<T> {
     public Set<String> getSupportedExtensions(){
         Map<String, Class<?>> extensionClass = getExtensionClass();
         return Collections.unmodifiableSet(new TreeSet<String>(extensionClass.keySet()));
+    }
+
+    public boolean hasExtension(String name){
+        if(name == null || name.length() == 0){
+            throw new IllegalArgumentException("extension name == null");
+        }
+        try{
+            return getExtension(name) != null;
+        }catch (Throwable e){
+            return false;
+        }
+    }
+
+    /**
+     * 编程式添加扩展点类型
+     * 如果是adptive注解的扩展，则只能有一个,且不管名字是否为空
+     * 如果是其他类型的扩展，则不能已存在
+     * @param name 扩展点名称
+     * @param clazz 扩展类型
+     */
+    public void addExtension(String name,Class<?> clazz){
+        getExtensionClass();// 先加载扩展类
+        if(!type.isAssignableFrom(clazz)){
+            throw new IllegalStateException("input type "+ clazz+" not implement extension " + type);
+        }
+        if(clazz.isInterface()){
+            throw new IllegalStateException("input type "+ clazz + " cannot be interface ");
+        }
+        if(!clazz.isAnnotationPresent(Adaptive.class)){
+            if(StringUtils.isBlank(name)){
+                throw new IllegalStateException("");
+            }
+            if(cachedClasses.get().containsKey(name)){
+                throw new IllegalStateException("already exist extension "+ name);
+            }
+            cachedClasses.get().put(name,clazz);
+            cachedNames.putIfAbsent(clazz,name);
+        }else{
+            if(cachedAdaptiveClass != null){
+                throw new IllegalStateException("already exist adaptive extension "+ cachedAdaptiveClass);
+            }
+            cachedAdaptiveClass = clazz;
+        }
     }
 
     private boolean isMatchGroup(String group,String[] groups){
@@ -528,7 +609,7 @@ public class ExtensionLoader<T> {
                     String s = String.format("\nif (arg%d == null) throw new IllegalArgumentException(\"url == null\");", urlTypeIndex);
                     code.append(s);
 
-                    s = String.format("\n%s url = arg%d", URL.class.getName(), urlTypeIndex);
+                    s = String.format("\n%s url = arg%d;", URL.class.getName(), urlTypeIndex);
                     code.append(s);
                 } else {
                     //参数没有url类型,那么就找参数类型里边的属性是否有URL属性
@@ -637,12 +718,17 @@ public class ExtensionLoader<T> {
                 // 检查默认名字是否为空 TODO
                 String s = String.format("\n if(extName == null) "
                                 + "throw new IllegalStateException(\"Faild to getExtension(%s) name from url (\"+url.toString()+\") use key(%s)\");",
-                        type.getName(), ExtensionLoader.class.getSimpleName(), type.getName());
+                        type.getName(), Arrays.toString(value));
                 code.append(s);
+
+                s = String.format("\n%s extension = (%<s)%s.getExtensionLoader(%s.class).getExtension(extName);",
+                        type.getName(),ExtensionLoader.class.getSimpleName(),type.getName());
+                code.append(s);
+
                 if (!rt.equals(void.class)) {
-                    code.append("\"return ");
+                    code.append("\nreturn ");
                 }
-                s = String.format("\"extension.%s(", method.getName());
+                s = String.format("extension.%s(", method.getName());
                 code.append(s);
 
                 for (int i = 0; i < pts.length; i++) {
@@ -654,7 +740,7 @@ public class ExtensionLoader<T> {
                 code.append(");");
             }
 
-                codeBuilder.append("\"public " + rt.getCanonicalName() + " " + method.getName() + "(");
+                codeBuilder.append("\npublic " + rt.getCanonicalName() + " " + method.getName() + "(");
                 for (int i = 0; i < pts.length; i++) {
                     if(i != 0){
                         codeBuilder.append(", ");
