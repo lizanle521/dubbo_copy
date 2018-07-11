@@ -3,9 +3,7 @@ package com.lizanle.dubbo.common.copy.extension;
 import com.lizanle.dubbo.common.copy.Constants;
 import com.lizanle.dubbo.common.copy.URL;
 import com.lizanle.dubbo.common.copy.extension.activate.ActivateExt1;
-import com.lizanle.dubbo.common.copy.extension.activate.impl.ActivateExt1Impl1;
-import com.lizanle.dubbo.common.copy.extension.activate.impl.GroupActivateExtImpl1;
-import com.lizanle.dubbo.common.copy.extension.activate.impl.ValueActivateExtImpl1;
+import com.lizanle.dubbo.common.copy.extension.activate.impl.*;
 import com.lizanle.dubbo.common.copy.extension.autoinjectrelateextension.AutoInjectRelateExtension;
 import com.lizanle.dubbo.common.copy.extension.ext1.SimpleExt;
 import com.lizanle.dubbo.common.copy.extension.ext1.impl.SimpleExtImpl1;
@@ -283,6 +281,14 @@ public class ExtensionLoaderTest {
         assertEquals(1,list2.size());
         assertTrue(list2.get(0).getClass() == ValueActivateExtImpl1.class);
 
+        // test order
+        url = URL.valueOf("test://localhost/test");
+        url.addParameter(Constants.GROUP_KEY,"order");
+
+        List<ActivateExt1> list3 = ExtensionLoader.getExtensionLoader(ActivateExt1.class).getActivateExtension(url, new String[]{}, "order");
+        assertEquals(2,list3.size());
+        assertTrue(list3.get(0).getClass() == OrderActivateExtImpl1.class);
+        assertTrue(list3.get(1).getClass() == OrderActivateExtImpl2.class);
     }
 
 

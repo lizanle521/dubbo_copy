@@ -175,8 +175,9 @@ public class ExtensionLoader<T> {
                         exts.add(extension);
                     }
                 }
-                Collections.sort(exts, ActivateComparator.COMPARATOR);
+
             }
+            Collections.sort(exts, ActivateComparator.COMPARATOR);
         }
         List<T> usrs = new ArrayList<>();
         for (int i = 0; i < names.size(); i++) {

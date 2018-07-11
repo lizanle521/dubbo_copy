@@ -55,10 +55,10 @@ public class ActivateComparator implements Comparator<Object> {
                     }
                 }
             }
-            int order1 = a1 == null ? 0 : a1.order();
-            int order2 = a2 == null ? 0 : a2.order();
-            return order1 > order2 ? 1 : -1 ; // 不能为0，防止在HastSet等集合中，当做同一个元素覆盖
+
         }
-        return 0;
+        int order1 = a1 == null ? 0 : a1.order();
+        int order2 = a2 == null ? 0 : a2.order();
+        return order1 > order2 ? 1 : -1 ; // 不能为0，防止在HastSet等集合中，当做同一个元素覆盖
     }
 }
