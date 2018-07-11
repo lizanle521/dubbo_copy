@@ -239,8 +239,7 @@ public class ExtensionLoader<T> {
     }
 
     /**
-     * active 的注解的value值 没有 或者 url中有 value值为key的参数
-     * 譬如 Active(value={"key1"}),url = "test://localhost/test?key1=k",那么该Activate所注解的扩展点就是被激活的
+     * url中存在k v,且k在Activate 的value值中
      * @param activate
      * @param url
      * @return
