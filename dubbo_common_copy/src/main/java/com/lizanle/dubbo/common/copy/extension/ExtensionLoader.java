@@ -151,6 +151,11 @@ public class ExtensionLoader<T> {
         return getExtensionName(extensionInstance.getClass());
     }
 
+    public List<T> getActivateExtension(URL url, String key, String group){
+        String value = url.getParameter(key);
+        return getActivateExtension(url, value == null || value.length() == 0 ? null : Constants.COMMA_SPLIT_PATTERN.split(value), group);
+    }
+
     /**
      * 获取激活的扩展点
      * @param url
