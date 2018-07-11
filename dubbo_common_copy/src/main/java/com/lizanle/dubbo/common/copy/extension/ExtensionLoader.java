@@ -3,7 +3,9 @@ package com.lizanle.dubbo.common.copy.extension;
 import com.lizanle.dubbo.common.copy.Constants;
 import com.lizanle.dubbo.common.copy.URL;
 import com.lizanle.dubbo.common.copy.compiler.Compiler;
+import com.lizanle.dubbo.common.copy.extension.support.ActivateComparator;
 import com.lizanle.dubbo.common.copy.utils.ConcurrentHashSet;
+import com.lizanle.dubbo.common.copy.utils.ConfigUtils;
 import com.lizanle.dubbo.common.copy.utils.Holder;
 import com.lizanle.dubbo.common.copy.utils.StringUtils;
 
@@ -156,7 +158,7 @@ public class ExtensionLoader<T> {
      * @param group
      * @return
      */
-    public List<T> getActivateExtension(URL url, String values, String group){
+    public List<T> getActivateExtension(URL url, String[] values, String group){
         List<T> exts = new ArrayList<>();
         List<String> names = values == null ? new ArrayList<>(0): Arrays.asList(values);
         // -default 代表去掉默认的扩展
@@ -165,9 +167,36 @@ public class ExtensionLoader<T> {
             for (Map.Entry<String, Activate> activateEntry : cachedActivates.entrySet()) {
                 String name = activateEntry.getKey();
                 Activate activate = activateEntry.getValue();
-
-
+                if(isMatchGroup(group,activate.group())){
+                    T extension = getExtension(name);
+                    // 没有已经存在，且没有去掉，并且是活跃的扩展点
+                    if(!names.contains(name) && !names.contains(Constants.REMOVE_VALUE_PREFIX+name)
+                            && isActive(activate,url)){
+                        exts.add(extension);
+                    }
+                }
+                Collections.sort(exts, ActivateComparator.COMPARATOR);
             }
+        }
+        List<T> usrs = new ArrayList<>();
+        for (int i = 0; i < names.size(); i++) {
+            String name = names.get(i);
+            //这个判断是防止出现 ext,-ext这种配置，配置了又删除了就等于没配置
+            if(!name.startsWith(Constants.REMOVE_VALUE_PREFIX)
+                    && !names.contains(Constants.REMOVE_VALUE_PREFIX+name)){
+                if(Constants.DEFAULT_KEY.equals(name)){
+                    if(usrs.size() > 0){
+                        exts.addAll(0,usrs);//存在默认的，那么就把所有的元素都插在列表头部
+                        usrs.clear();
+                    }
+                }else{
+                    T extension = getExtension(name);
+                    usrs.add(extension);
+                }
+            }
+        }
+        if(usrs.size() > 0){
+            exts.addAll(usrs);
         }
         return exts;
     }
@@ -201,6 +230,30 @@ public class ExtensionLoader<T> {
             }
         }
         return (T)instance;
+    }
+
+    /**
+     * active 的注解的value值 没有 或者 url中有 value值为key的参数
+     * 譬如 Active(value={"key1"}),url = "test://localhost/test?key1=k",那么该Activate所注解的扩展点就是被激活的
+     * @param activate
+     * @param url
+     * @return
+     */
+    private boolean isActive(Activate activate,URL url){
+        String[] keys = activate.value();
+        if(keys == null || keys.length == 0){
+            return true;
+        }
+        for (String key : keys) {
+            for (Map.Entry<String, String> entry : url.getParameters().entrySet()) {
+                String k = entry.getKey();
+                String v = entry.getValue();
+                if(k.equals(k) || k.endsWith("."+key) && ConfigUtils.isNotEmpty(v)){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 
@@ -504,7 +557,7 @@ public class ExtensionLoader<T> {
                                             }catch (NoSuchMethodException e){
                                                 clazz.getConstructor();
                                                 if(name == null || name.length() == 0){
-                                                    //name = findAnnotationName(clazz);
+                                                    name = clazz.getSimpleName().toLowerCase(); // 这里由于dubbo是废弃掉的方法，copy没啥意义,直接规避错误吧
                                                     if(name == null || name.length() == 0){
                                                         if(clazz.getSimpleName().length() > type.getSimpleName().length() &&
                                                                 clazz.getSimpleName().endsWith(type.getSimpleName())){

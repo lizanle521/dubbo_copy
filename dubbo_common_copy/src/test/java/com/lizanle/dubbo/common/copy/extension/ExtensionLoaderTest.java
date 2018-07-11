@@ -1,6 +1,11 @@
 package com.lizanle.dubbo.common.copy.extension;
 
+import com.lizanle.dubbo.common.copy.Constants;
 import com.lizanle.dubbo.common.copy.URL;
+import com.lizanle.dubbo.common.copy.extension.activate.ActivateExt1;
+import com.lizanle.dubbo.common.copy.extension.activate.impl.ActivateExt1Impl1;
+import com.lizanle.dubbo.common.copy.extension.activate.impl.GroupActivateExtImpl1;
+import com.lizanle.dubbo.common.copy.extension.activate.impl.ValueActivateExtImpl1;
 import com.lizanle.dubbo.common.copy.extension.autoinjectrelateextension.AutoInjectRelateExtension;
 import com.lizanle.dubbo.common.copy.extension.ext1.SimpleExt;
 import com.lizanle.dubbo.common.copy.extension.ext1.impl.SimpleExtImpl1;
@@ -19,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.anyOf;
@@ -254,4 +260,30 @@ public class ExtensionLoaderTest {
             assertEquals("impl1",ExtensionLoader.getExtensionLoader(AddExt1.class).getExtensionName(AddExt1_ManualAdd2.class));
         }
     }
+
+    @Test
+    public void loadActivateExtension(){
+        URL url = URL.valueOf("test://localhost/test");
+        // 通过group 筛选，group符合要求 且 url中存在 activae value中的key(如果activate value没有值，则默认匹配)
+        List<ActivateExt1> list = ExtensionLoader.getExtensionLoader(ActivateExt1.class).getActivateExtension(url, new String[]{}, "default_group");
+        assertEquals(1,list.size());
+        assertTrue(list.get(0).getClass() == ActivateExt1Impl1.class);
+
+        // test group
+        url = url.addParameter(Constants.GROUP_KEY,"group1");
+        List<ActivateExt1> list1 = ExtensionLoader.getExtensionLoader(ActivateExt1.class).getActivateExtension(url, new String[]{}, "group1");
+        assertEquals(1,list1.size());
+        assertTrue(list1.get(0).getClass() == GroupActivateExtImpl1.class);
+
+        // test value
+        url =  url.removeParameter(Constants.GROUP_KEY);
+        url = url.addParameter(Constants.GROUP_KEY,"value");
+        url = url.addParameter("value","value");
+        List<ActivateExt1> list2 = ExtensionLoader.getExtensionLoader(ActivateExt1.class).getActivateExtension(url, new String[]{}, "value");
+        assertEquals(1,list2.size());
+        assertTrue(list2.get(0).getClass() == ValueActivateExtImpl1.class);
+
+    }
+
+
 }

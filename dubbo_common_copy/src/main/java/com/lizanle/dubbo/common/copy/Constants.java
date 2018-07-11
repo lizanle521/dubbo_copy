@@ -19,4 +19,5 @@ public class Constants {
 
     public static final String REMOVE_VALUE_PREFIX = "-";
     public static final String DEFAULT_KEY = "default";
+    public static final String GROUP_KEY = "group";
 }

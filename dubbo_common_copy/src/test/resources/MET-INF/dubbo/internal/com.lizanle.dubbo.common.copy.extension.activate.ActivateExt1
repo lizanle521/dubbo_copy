@@ -1,0 +1,4 @@
+group=com.lizanle.dubbo.common.copy.extension.activate.impl.GroupActivateExtImpl1
+value=com.lizanle.dubbo.common.copy.extension.activate.impl.ValueActivateExtImpl1
+order1=com.lizanle.dubbo.common.copy.extension.activate.impl.OrderActivateExtImpl1
+order2=com.lizanle.dubbo.common.copy.extension.activate.impl.OrderActivateExtImpl2

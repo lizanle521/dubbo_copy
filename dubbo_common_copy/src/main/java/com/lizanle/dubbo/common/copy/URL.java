@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -382,6 +383,49 @@ public final class URL  implements Serializable{
             urls = new ConcurrentHashMap<>();
         }
         return urls;
+    }
+
+    public URL addParameter(String key, String value) {
+        if (key == null || key.length() == 0
+                || value == null || value.length() == 0) {
+            return this;
+        }
+        // 如果没有修改，直接返回。
+        if (value.equals(getParameters().get(key))) { // value != null
+            return this;
+        }
+
+        Map<String, String> map = new HashMap<String, String>(getParameters());
+        map.put(key, value);
+        return new URL(protocol, username, password, host, port, path, map);
+    }
+
+    public URL removeParameter(String key) {
+        if (key == null || key.length() == 0) {
+            return this;
+        }
+        return removeParameters(key);
+    }
+
+    public URL removeParameters(Collection<String> keys) {
+        if (keys == null || keys.size() == 0) {
+            return this;
+        }
+        return removeParameters(keys.toArray(new String[0]));
+    }
+
+    public URL removeParameters(String... keys) {
+        if (keys == null || keys.length == 0) {
+            return this;
+        }
+        Map<String, String> map = new HashMap<String, String>(getParameters());
+        for (String key : keys) {
+            map.remove(key);
+        }
+        if (map.size() == getParameters().size()) {
+            return this;
+        }
+        return new URL(protocol, username, password, host, port, path, map);
     }
 
 
