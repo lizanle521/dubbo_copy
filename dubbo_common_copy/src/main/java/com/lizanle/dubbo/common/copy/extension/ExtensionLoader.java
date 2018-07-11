@@ -343,7 +343,7 @@ public class ExtensionLoader<T> {
         }
         if(!clazz.isAnnotationPresent(Adaptive.class)){
             if(StringUtils.isBlank(name)){
-                throw new IllegalStateException("");
+                throw new IllegalStateException("extension name is blank");
             }
             if(cachedClasses.get().containsKey(name)){
                 throw new IllegalStateException("already exist extension "+ name);
@@ -355,6 +355,43 @@ public class ExtensionLoader<T> {
                 throw new IllegalStateException("already exist adaptive extension "+ cachedAdaptiveClass);
             }
             cachedAdaptiveClass = clazz;
+        }
+    }
+
+    /**
+     * 编程式替换扩展点
+     * @param name
+     * @param clazz
+     * 实际情况下不推荐使用，测试的时候使用。
+     */
+    @Deprecated
+    public void replaceExtension(String name , Class clazz){
+        getExtensionClass();//先加载扩展点
+
+        if(!type.isAssignableFrom(clazz)){
+            throw new IllegalArgumentException("extension class : " + clazz.getName()+" not implements " + type.getName() );
+        }
+
+        if(clazz.isInterface()){
+            throw new IllegalArgumentException("extension class :" + clazz.getName() + " is interface");
+        }
+
+        if(!clazz.isAnnotationPresent(Adaptive.class)){
+            if(StringUtils.isBlank(name)){
+                throw new IllegalArgumentException("extension name is blank");
+            }
+            if(!cachedClasses.get().containsKey(name)){
+                throw new IllegalArgumentException("no such extension exist named :" + name);
+            }
+            cachedNames.put(clazz,name);
+            cachedClasses.get().put(name,clazz);
+            cachedInstance.remove(name);
+        }else{
+            if(cachedAdaptiveClass == null){
+                throw new IllegalArgumentException("no adaptive extension exist");
+            }
+            cachedAdaptiveClass = clazz;
+            cachedAdaptiveInstance.set(null);
         }
     }
 

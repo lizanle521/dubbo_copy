@@ -11,10 +11,7 @@ import com.lizanle.dubbo.common.copy.extension.ext6_wrap.impl.Ext5Wrapper1;
 import com.lizanle.dubbo.common.copy.extension.ext6_wrap.impl.Ext5Wrapper2;
 import com.lizanle.dubbo.common.copy.extension.ext8_add.AddExt1;
 import com.lizanle.dubbo.common.copy.extension.ext8_add.AddExt2;
-import com.lizanle.dubbo.common.copy.extension.ext8_add.impl.AddExt1Impl1;
-import com.lizanle.dubbo.common.copy.extension.ext8_add.impl.AddExt1_ManualAdaptive;
-import com.lizanle.dubbo.common.copy.extension.ext8_add.impl.AddExt1_ManualAdd1;
-import com.lizanle.dubbo.common.copy.extension.ext8_add.impl.AddExt2_ManualAdaptive;
+import com.lizanle.dubbo.common.copy.extension.ext8_add.impl.*;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -232,6 +229,29 @@ public class ExtensionLoaderTest {
             fail();
         } catch (Exception e) {
             assertThat(e.getMessage(),CoreMatchers.containsString("already exist"));
+        }
+    }
+
+    @Test
+    public void test_getExtension_replaceExtension(){
+        try {
+            ExtensionLoader.getExtensionLoader(AddExt1.class).getExtension("Manual2");
+            fail();
+        } catch (Exception e) {
+            assertThat(e.getMessage(),CoreMatchers.containsString("no such extension"));
+        }
+
+        {
+            AddExt1 impl1 = ExtensionLoader.getExtensionLoader(AddExt1.class).getExtension("impl1");
+            assertThat(impl1,instanceOf(AddExt1Impl1.class));
+            assertEquals("impl1",ExtensionLoader.getExtensionLoader(AddExt1.class).getExtensionName(AddExt1Impl1.class));
+        }
+
+        {
+            ExtensionLoader.getExtensionLoader(AddExt1.class).replaceExtension("impl1", AddExt1_ManualAdd2.class);
+            AddExt1 impl1 = ExtensionLoader.getExtensionLoader(AddExt1.class).getExtension("impl1");
+            assertThat(impl1,instanceOf(AddExt1_ManualAdd2.class));
+            assertEquals("impl1",ExtensionLoader.getExtensionLoader(AddExt1.class).getExtensionName(AddExt1_ManualAdd2.class));
         }
     }
 }
