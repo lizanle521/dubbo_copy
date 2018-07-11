@@ -218,8 +218,15 @@ public class ExtensionLoaderTest {
     @Test
     public void test_addAdaptiveExtension_whenExist() {
         ExtensionLoader<AddExt1> loader = ExtensionLoader.getExtensionLoader(AddExt1.class);
-        loader.getAdaptvieExtension();
+        // AddExt1 的echo方法 有Adaptive注解，就会以编码的方式（前提是没有Adaptive注解的接口实现类，并且参数中带有URL对象）生成一个Adaptive类，
+        // 默认会去获取Adaptive方法中的URL参数，然后通过扩展点的名称去获取url中的参数传值,譬如AddExt1的SPI默认值为impl,且Adaptive注解没有值，那么
+        // 获取url参数的方式就是 extName = url.getParameter("add.ext1","impl1")
+        // 如果adaptive注解有值 "key1","key2"，那么就会用adaptive注解的值做key去url中找扩展点名字,
+        // 如果spi没有默认值，而key1 key2参数又没传的话，那么extName就会为空，就会报扩展点名字为空 extension name == null
+        // 这个extName就是Adaptive类 通过ExtensionLoader类去获取的扩展点的名字
 
+        // 这里Adaptive的实现思路就是采用简单代理模式，用生成的类或者已经存在的代理类 调用实际存在的实现类的方法，
+        loader.getAdaptvieExtension();
         try {
             loader.addExtension(null, AddExt1_ManualAdaptive.class);
             fail();
