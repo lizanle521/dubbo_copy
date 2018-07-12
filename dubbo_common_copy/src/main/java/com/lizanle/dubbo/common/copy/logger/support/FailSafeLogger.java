@@ -1,6 +1,8 @@
 package com.lizanle.dubbo.common.copy.logger.support;
 
+import com.lizanle.dubbo.common.copy.Version;
 import com.lizanle.dubbo.common.copy.logger.Logger;
+import com.lizanle.dubbo.common.copy.utils.NetUtils;
 
 public class FailSafeLogger implements Logger {
     private Logger logger;
@@ -26,6 +28,10 @@ public class FailSafeLogger implements Logger {
         }
     }
 
+    private String appendContextMessage(String msg){
+        return "DUBBO: " + msg + " VERSION:" + Version.getVersion()+ " Current Host:" + NetUtils.getLogHost();
+    }
+
     @Override
     public void trace(Throwable e) {
         try {
@@ -38,7 +44,7 @@ public class FailSafeLogger implements Logger {
     @Override
     public void trace(String msg, Throwable e) {
         try {
-            logger.trace(msg,e);
+            logger.trace(appendContextMessage(msg),e);
         } catch (Exception e1) {
 
         }
@@ -47,7 +53,7 @@ public class FailSafeLogger implements Logger {
     @Override
     public void debug(String msg) {
         try {
-            logger.debug(msg);
+            logger.debug(appendContextMessage(msg));
         } catch (Exception e) {
 
         }
@@ -65,7 +71,7 @@ public class FailSafeLogger implements Logger {
     @Override
     public void debug(String msg, Throwable e) {
         try {
-            logger.debug(msg,e);
+            logger.debug(appendContextMessage(msg),e);
         } catch (Exception e1) {
 
         }
@@ -74,7 +80,7 @@ public class FailSafeLogger implements Logger {
     @Override
     public void info(String msg) {
         try {
-            logger.info(msg);
+            logger.info(appendContextMessage(msg));
         } catch (Exception e) {
 
         }
@@ -92,7 +98,7 @@ public class FailSafeLogger implements Logger {
     @Override
     public void info(String msg, Throwable e) {
         try {
-            logger.info(msg,e);
+            logger.info(appendContextMessage(msg),e);
         } catch (Exception e1) {
 
         }
@@ -101,7 +107,7 @@ public class FailSafeLogger implements Logger {
     @Override
     public void warn(String msg) {
         try {
-            logger.warn(msg);
+            logger.warn(appendContextMessage(msg));
         } catch (Exception e) {
 
         }
@@ -119,7 +125,7 @@ public class FailSafeLogger implements Logger {
     @Override
     public void warn(String msg, Throwable e) {
         try {
-            logger.warn(msg,e);
+            logger.warn(appendContextMessage(msg),e);
         } catch (Exception e1) {
 
         }
@@ -128,7 +134,7 @@ public class FailSafeLogger implements Logger {
     @Override
     public void error(String msg) {
         try {
-            logger.error(msg);
+            logger.error(appendContextMessage(msg));
         } catch (Exception e) {
 
         }
@@ -146,7 +152,7 @@ public class FailSafeLogger implements Logger {
     @Override
     public void error(String msg, Throwable e) {
         try {
-            logger.error(msg,e);
+            logger.error(appendContextMessage(msg),e);
         } catch (Exception e1) {
 
         }

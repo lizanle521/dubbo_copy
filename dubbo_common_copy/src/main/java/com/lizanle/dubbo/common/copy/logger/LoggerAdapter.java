@@ -1,11 +1,14 @@
 package com.lizanle.dubbo.common.copy.logger;
 
+import com.lizanle.dubbo.common.copy.extension.SPI;
+
 import java.io.File;
 
 /**
  * 实际的Logger提供者
  * @author lizanle
  */
+@SPI
 public interface LoggerAdapter {
     /**
      * 获取日志输出器

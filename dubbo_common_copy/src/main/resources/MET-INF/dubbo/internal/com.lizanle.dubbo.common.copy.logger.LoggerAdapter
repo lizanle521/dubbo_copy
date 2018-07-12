@@ -1,0 +1,4 @@
+jcl=com.lizanle.dubbo.common.copy.logger.jcl.JclLoggerAdapter
+jdk=com.lizanle.dubbo.common.copy.logger.jdk.JclLoggerAdapter
+log4j=com.lizanle.dubbo.common.copy.logger.log4j.JclLoggerAdapter
+slf4j=com.lizanle.dubbo.common.copy.logger.slf4j.JclLoggerAdapter
