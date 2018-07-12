@@ -42,5 +42,5 @@ public interface LoggerAdapter {
     /**
      *
      */
-    void setFile();
+    void setFile(File file);
 }
