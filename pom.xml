@@ -27,7 +27,9 @@
     </licenses>
 
     <modules>
+        <module>hessian_lite_copy</module>
         <module>dubbo_common_copy</module>
+
     </modules>
 
     <organization>
@@ -116,6 +118,20 @@
             <!-- cglib -->
         </dependencies>
     </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jmockit</groupId>
+            <artifactId>jmockit</artifactId>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>
